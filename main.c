@@ -9,7 +9,8 @@ int main(int argc, char** argv) {
     srand(time(0));
     char ch;
     int n = -1;
-    state_t state;
+    state_t state = new_state;
+    state.my_id = rand() % 100000 +1;
 
     if(argc == 1) {
         usage();
