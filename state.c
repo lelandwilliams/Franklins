@@ -1,13 +1,19 @@
+#ifndef STATE_H
+#define STATE_H
+
+#include <stdlib.h>
+
 typedef enum {ACTIVE, PASSIVE, LEADER} nodestatus;
 
-typedef struct {
+struct state_s{
     int server_port;
     int L_port;
     int R_port;
     nodestatus status ;
     int round_number;
-    int L_ID;
-    int R_ID;
     int my_id;
-} state_t;
+} new_state = {0,0,0,ACTIVE,0,0};
 
+typedef struct state_s state_t;
+
+#endif
