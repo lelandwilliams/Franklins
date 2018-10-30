@@ -9,5 +9,5 @@ typedef struct {
     int L_ID;
     int R_ID;
     int my_id;
-} state;
+} state_t;
 
