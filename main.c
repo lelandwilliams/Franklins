@@ -7,24 +7,26 @@
 
 void usage() {printf("Usage: franklin -n <nodes to create> [-p <port of neighbor>]\n");}
 
-int main(int argc, char** argv) {
-    srand(time(0));
+int process_args(int argc, char** argv, state_t *st) {
+    /*
+     * Returns number of nodes to create, or -1 if 
+     * missing -n switch
+     * Also alters the value of state_t.L_port if
+     * -p switch is given
+     */
     char ch;
     int n = -1;
-    state_t state = new_state;
-    state.my_id = rand() % 100000 +1;
 
-    if(argc == 1) {
-        usage();
-        return 0;
-    }
+    if(argc == 1) 
+        return n;
+
     while ((ch = getopt(argc, argv, "n:p:")) != EOF)
         switch(ch) {
             case 'n':
                 n = strtol(optarg, NULL, 10);
                 break;
             case 'p':
-                state.L_port = strtol(optarg, NULL, 10);
+                st->L_port = strtol(optarg, NULL, 10);
                 break;
             default:
                 fprintf(stderr, "Unknown option: '%s'\n", optarg);
@@ -33,10 +35,18 @@ int main(int argc, char** argv) {
     argc -= optind;
     argv += optind;
 
-    if(n == -1) {
+    return n;
+}
+
+int main(int argc, char** argv) {
+    state_t state = new_state;
+    int num_nodes = process_args(argc, argv, &state);
+    if (num_nodes == -1) {
         usage();
         return 0;
     }
+    srand(time(0));
+    state.my_id = rand() % 100000 +1;
 
     return 0;
 }
