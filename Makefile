@@ -1,13 +1,16 @@
 CC=gcc
-CFLAGS=-I.
+CFLAGS=-I. -Wall
 
 all: franklin
 
-state.o: state.c
-	$(CC) -c state.c
+#state.o: state.c
+#	$(CC) -c state.c
 
-franklin: state.o main.c
-	$(CC) -o franklin main.c state.o
+main.o: state.h main.c
+	$(CC) -c main.c 
+
+franklin: state.h main.o
+	$(CC) main.o -o franklin
 
 clean:
 	rm *.o franklin
