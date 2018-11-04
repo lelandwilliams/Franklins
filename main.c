@@ -3,7 +3,9 @@
 #include <time.h>
 #include <unistd.h>
 //#include "franklinlib.c"
-#include "state.c"
+#include "state.h"
+
+void usage() {printf("Usage: franklin -n <nodes to create> [-p <port of neighbor>]\n");}
 
 int main(int argc, char** argv) {
     srand(time(0));
@@ -38,3 +40,4 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+
