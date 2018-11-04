@@ -1,8 +1,6 @@
 #ifndef STATE_H
 #define STATE_H
 
-#include <stdlib.h>
-
 typedef enum {ACTIVE, PASSIVE, LEADER} nodestatus;
 
 struct state_s{
