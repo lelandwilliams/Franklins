@@ -3,13 +3,13 @@ CFLAGS=-I. -Wall
 
 all: franklin
 
-#state.o: state.c
-#	$(CC) -c state.c
+network.o: network.h network.c
+	$(CC) -c network.c
 
-main.o: state.h main.c
+main.o: state.h network.h main.c
 	$(CC) -c main.c 
 
-franklin: state.h main.o
+franklin: network.o main.o
 	$(CC) main.o -o franklin
 
 clean:
