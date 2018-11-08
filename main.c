@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
-//#include "franklinlib.c"
 #include "state.h"
+#include "network.c"
 
 void usage() {printf("Usage: franklin -n <nodes to create> [-p <port of neighbor>]\n");}
 
@@ -39,15 +39,17 @@ int process_args(int argc, char** argv, state_t *st) {
 }
 
 int main(int argc, char** argv) {
+    srand(time(0));
     state_t state = new_state;
+    state.my_id = rand() % 100000 +1;
+
     int num_nodes = process_args(argc, argv, &state);
     if (num_nodes == -1) {
         usage();
         return 0;
     }
-    srand(time(0));
-    state.my_id = rand() % 100000 +1;
 
+    start_server(55336, &state);
     return 0;
 }
 
