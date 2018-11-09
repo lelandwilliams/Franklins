@@ -7,6 +7,16 @@
 
 void usage() {printf("Usage: franklin -n <nodes to create> [-p <port of neighbor>]\n");}
 
+void print_status(state_t *st) {
+    for(int i = 0; i<50; i++)
+        printf("*");
+    printf("\n");
+
+    printf("Node ID: %d\n", st->my_id);
+    printf("Server Port: %d\n", server_port);
+    printf("Server Address: %s\n", server_octets);
+}
+
 int process_args(int argc, char** argv, state_t *st) {
     /*
      * Returns number of nodes to create, or -1 if 
@@ -50,6 +60,23 @@ int main(int argc, char** argv) {
     }
 
     start_server(55336, &state);
+    print_status(&state);
+    if(num_nodes > 0) {
+        pid_t fork_result = fork();
+        if(fork_result == -1)
+            perror("Failed to fork") ;
+        if(fork_result == 0) {
+            char num_s[5];
+            sprintf(num_s, "%d", (num_nodes -1));
+            char port_s[5];
+            sprintf(port_s, "%d", (server_port));
+            pid_t e_result = execl("./franklin", "franklin", "-n", num_s, "-p", port_s,NULL);
+            if(e_result == -1)
+                perror("Exec Error");
+
+        }
+    }
+
     return 0;
 }
 
