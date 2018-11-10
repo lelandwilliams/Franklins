@@ -77,6 +77,7 @@ int main(int argc, char** argv) {
         }
     }
 
+    main_loop(&state);
     return 0;
 }
 
