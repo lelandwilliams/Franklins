@@ -18,7 +18,7 @@ int start_server(int last_port, state_t *state) {
         addr.sin_port = (in_port_t) htons(server_port);
         int result = bind(server_socket, (struct sockaddr *) &addr, sizeof(addr));
         if (result == -1)
-            fprintf(stderr, "Can't bind to socket", strerror(errno));
+            fprintf(stderr, "Can't bind socket to port\n", strerror(errno));
         else
             done = 1;
     }
