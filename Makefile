@@ -6,7 +6,7 @@ all: franklin
 network.o: network.h network.c
 	$(CC) -c network.c
 
-main.o: state.h network.h main.c
+main.o: state.h network.o main.c
 	$(CC) -c main.c 
 
 franklin: network.o main.o
