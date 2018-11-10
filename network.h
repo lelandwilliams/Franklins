@@ -15,4 +15,5 @@ char* server_octets;
 struct sockaddr_in addr;
 
 int start_server(int, state_t*);
+void main_loop(state_t*);
 #endif
