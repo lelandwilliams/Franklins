@@ -1,9 +1,35 @@
 #include "network.h"
 
+void establish(int port) {
+    send_message(PORT, port);
+}
+
 void main_loop(state_t *state) {
     int done = 0;
     //while(done == 0) 
      //   if(! network_complete()) {;}
+}
+
+void send_message(message_t type, int reciever) {
+    char msg[10];
+    char val[10];
+    switch(type) {
+        case PORT:
+            strcat(msg, "P;");
+            sprintf(val, "%d", server_port);
+            break;
+        case ELECTION:
+            strcat(msg, "E;");
+            sprintf(val, "%d", franklin_id);
+            break;
+        case DIE:
+            strcat(msg, "D;");
+            sprintf(val, "%d", 100);
+            break;
+        default:
+            printf("send_message(): what am I doing here ?\n");
+    }
+    strcat(msg, val);
 }
 
 int start_server(int last_port, state_t *state) {
