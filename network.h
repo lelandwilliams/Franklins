@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "state.h"
 
 typedef enum{PORT, ELECTION, DIE} message_t;
