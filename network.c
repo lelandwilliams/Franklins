@@ -6,9 +6,32 @@ void establish(int port) {
 
 void main_loop(state_t *state) {
     int done = 0;
-    //while(done == 0) 
-     //   if(! network_complete()) {;}
-}
+    int bytes_read = 0;
+    char buffer[50];
+    if(listen(server_socket, 3) == -1)
+        perror("Cannot listen on Socket");
+    struct sockaddr_storage client_addr;
+    int client_addr_size = sizeof(client_addr);
+
+    while(done == 0) {
+        int client_socket = accept(server_socket, 
+                (struct sockaddr *) &client_addr,
+                &client_addr_size);
+        if(client_socket == -1){
+            sprintf(buffer, "Node %d: Err accepting connection\n", id);
+            perror(buffer);
+        }
+        else {
+            bytes_read = recv(client_socket, buffer, 49, 0);
+            if(bytes_read < 0) {
+                sprintf(buffer, "Node %d: Err on recv()\n", id);
+                perror(buffer);
+            }// if
+            else
+                done = process_message(buffer);
+        } //else
+    } // while
+}// main_loop()
 
 void send_message(message_t type, int reciever) {
     char msg[10];
