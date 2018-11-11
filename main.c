@@ -14,18 +14,19 @@ void usage() {printf("Usage: %s %s %s %s %s\n",
         "[-p <port of neighbor>]"
         );}
 
-void print_status(state_t *st) {
+void print_status() {
     int star_length = 30;
     printf("\n");
     for(int i = 0; i<star_length; i++)
         printf("*");
     printf("\n");
 
-    printf("Node Number: %d\n", id);
+    printf("Node Number: %d of %d\n", id, num_nodes);
     printf("Franklin ID: %d\n", franklin_id);
-    printf("Original Port: %d\n", first_port);
-    printf("Server Port: %d\n", server_port);
-    printf("Server Address: %s\n", server_octets);
+    printf("Node 1 Port: %d\n", first_port);
+    printf("This Node's Port: %d\n", server_port);
+    printf("This Node's Address: %s\n", server_octets);
+    printf("Previous Node's Port: %d\n", port_L);
 
     for(int i = 0; i<star_length; i++)
         printf("*");
@@ -57,6 +58,7 @@ int process_args(int argc, char** argv) {
                 break;
             case 'p':
                 port_L = strtol(optarg, NULL, 10);
+                //printf("Node %d reading %s as %d\n", id, optarg, port_L);
                 break;
             default:
                 fprintf(stderr, "Unknown option: '%s'\n", optarg);
@@ -104,7 +106,7 @@ int main(int argc, char** argv) {
     start_server(55336, &state);
     if(id == 1)
         first_port = server_port;
-    print_status(&state);
+    print_status();
 
     if(num_nodes == id) 
         port_R = first_port;
@@ -113,14 +115,14 @@ int main(int argc, char** argv) {
         if(fork_result == -1)
             perror("Failed to fork") ;
         if(fork_result == 0) {
-            char next_id[5];
+            char next_id[8];
             sprintf(next_id, "%d", (id +1));
-            char num_nodes_s[5];
-            sprintf(num_nodes_s, "%d", (num_nodes));
-            char port_s[5];
-            sprintf(port_s, "%d", (server_port));
-            char original_s[5];
-            sprintf(original_s, "%d", (first_port));
+            char num_nodes_s[8];
+            sprintf(num_nodes_s, "%d", num_nodes);
+            char port_s[8];
+            sprintf(port_s, "%d", server_port);
+            char original_s[8];
+            sprintf(original_s, "%d", first_port);
 
             pid_t e_result = execl("./franklin", 
                     "franklin", 
@@ -140,7 +142,6 @@ int main(int argc, char** argv) {
         establish(port_R);
 
     main_loop(&state);
-    close(server_socket);
     return 0;
 }
 
