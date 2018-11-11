@@ -1,15 +1,23 @@
 #include "network.h"
 
+void election(){;}
+
 void establish(int port) {
     send_message(PORT, port);
 }
 
 void main_loop(state_t *state) {
+    printf("Node %d in  main_loop()\n", id);
     int done = 0;
     int bytes_read = 0;
     char buffer[50];
-    if(listen(server_socket, 3) == -1)
+
+    if(listen(server_socket, 3) == -1){
         perror("Cannot listen on Socket");
+        done = 1;
+    }
+    printf("Node %d listening\n", id);
+
     struct sockaddr_storage client_addr;
     int client_addr_size = sizeof(client_addr);
 
@@ -22,6 +30,7 @@ void main_loop(state_t *state) {
             perror(buffer);
         }
         else {
+            printf("Node %d received a message\n", id);
             bytes_read = recv(client_socket, buffer, 49, 0);
             if(bytes_read < 0) {
                 sprintf(buffer, "Node %d: Err on recv()\n", id);
@@ -31,11 +40,52 @@ void main_loop(state_t *state) {
                 done = process_message(buffer);
         } //else
     } // while
+    close(server_port);
 }// main_loop()
 
-void send_message(message_t type, int reciever) {
-    char msg[10];
-    char val[10];
+int process_message(char* msg) {
+    printf("Node %d revieved message '%s'\n", id, msg);
+    int incoming_id = -1;
+
+    char *message_type = strtok(msg, ";");
+    char *port_s = strtok(msg, ";");
+    int incoming_port = strtol(port_s, NULL, 10);
+    char *id_s = strtok(msg, ";");
+    if(id_s != NULL)
+        incoming_id = strtol(id_s, NULL, 10);
+
+    switch(message_type[0]) {
+        case 'P':
+            if(!port_L && !port_R)
+                port_R = incoming_port;
+            if(!port_R)
+                port_L = incoming_port;
+            election();
+            break;
+        case 'D':
+            break;
+    }
+}
+
+void send_message(message_t type, int receiver) {
+    int out_socket = socket(AF_INET, SOCK_STREAM, 0);
+    struct sockaddr_in out_addr;
+    memset(&out_addr, 0, sizeof(out_addr));
+    out_addr.sin_family = PF_INET;
+    out_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    out_addr.sin_port = htons(receiver);
+    int result = connect(out_socket, 
+            (struct sockaddr *) &out_addr, 
+            sizeof(out_addr));
+    if(result == -1) {
+        char e[50];
+        sprintf(e, "Node %d: Connection Error to port %d", id, receiver);
+        perror(e);
+    }
+
+    char msg[50];
+    msg[0] = '\0';
+    char val[30];
     switch(type) {
         case PORT:
             strcat(msg, "P;");
@@ -43,16 +93,22 @@ void send_message(message_t type, int reciever) {
             break;
         case ELECTION:
             strcat(msg, "E;");
-            sprintf(val, "%d", franklin_id);
+            sprintf(val, "%d;%d", franklin_id, server_port);
             break;
         case DIE:
             strcat(msg, "D;");
-            sprintf(val, "%d", 100);
+            sprintf(val, "%d", server_port);
             break;
         default:
-            printf("send_message(): what am I doing here ?\n");
+            printf("Node %d: Reached end of send_message() switch", id);
     }
     strcat(msg, val);
+    int bytes_sent = 0;
+    while(bytes_sent == 0) {
+        printf("Node %d sending '%s' to port %d\n", id, msg, receiver);
+        bytes_sent = send(out_socket, msg, strlen(msg), 0);
+    }
+    printf("Node %d sent %d bytes to port %d\n", id, bytes_sent, receiver);
 }
 
 int start_server(int last_port, state_t *state) {
