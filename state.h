@@ -5,9 +5,10 @@ typedef enum {ACTIVE, PASSIVE, LEADER} nodestatus;
 int franklin_id;
 int id = 1;
 int first_port = -1; // remembers port of first node
-int port_L = -1; // the port # of the node to the 'left', or id -1
-int port_R = -1; // the port # of the node to the 'right', or id +1
-int num_nodes = -1;
+int port_L = 0; // the port # of the node to the 'left', or id -1
+int port_R = 0; // the port # of the node to the 'right', or id +1
+int num_nodes = 0;
+nodestatus status;
 
 struct state_s{
     int L_port;
