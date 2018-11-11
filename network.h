@@ -17,6 +17,7 @@ char* server_octets;
 struct sockaddr_in addr;
 
 void establish(int);
+int process_message(char*);
 void send_message(message_t, int);
 int start_server(int, state_t*);
 void main_loop(state_t*);
