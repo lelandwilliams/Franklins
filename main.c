@@ -1,3 +1,4 @@
+#include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -59,7 +60,6 @@ int process_args(int argc, char** argv) {
                 break;
             default:
                 fprintf(stderr, "Unknown option: '%s'\n", optarg);
-                usage();
                 return 1;
         }
     argc -= optind;
@@ -68,12 +68,33 @@ int process_args(int argc, char** argv) {
 }
 
 int main(int argc, char** argv) {
-    srand(time(0));
     state_t state = new_state;
-    franklin_id = rand() % 100000 +1;
 
-    if(process_args(argc, argv))
+    // since this program will probably run on the same
+    // machine, the random number generators will likely
+    // interfere which each other because the startup time 
+    // is so fast
+    // that using time(0) can return the same result 
+    // so using time as a seed causes the rng to 
+    // produce the same value, so instead we draw
+    // from /dev/urandom for a seed
+
+    //read from /dev/urandom
+    unsigned char rbuffer[8];
+    int fd = open("/dev/urandom", O_RDWR);
+    read(fd, rbuffer, 8);
+    close(fd);
+
+    unsigned long int seed = 0;
+    for(int i = 0; i < 8; i++)
+        seed = seed * 256 + rbuffer[i];
+    srand48(seed);
+    franklin_id = lrand48() % 1000000 +1;
+
+    if(process_args(argc, argv)) {
+        usage();
         return 0;
+    }
 
     if (num_nodes == -1) {
         usage();
