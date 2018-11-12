@@ -24,7 +24,7 @@ struct sockaddr_in addr;
 void election();
 void establish(int);
 int process_message(char*);
-void send_message(message_t, int);
+void send_message(message_t, int,int,int);
 int start_server(int, state_t*);
 void main_loop(state_t*);
 #endif
