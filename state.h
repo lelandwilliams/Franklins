@@ -10,6 +10,7 @@ int port_R = 0; // the port # of the node to the 'right', or id +1
 int num_nodes = 0;
 nodestatus status;
 
+void print_status();
 struct state_s{
     int L_port;
     int R_port;
