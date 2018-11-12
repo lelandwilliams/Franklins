@@ -27,6 +27,7 @@ void print_status() {
     printf("This Node's Port: %d\n", server_port);
     printf("This Node's Address: %s\n", server_octets);
     printf("Previous Node's Port: %d\n", port_L);
+    printf("Next Node's Port: %d\n", port_R);
 
     for(int i = 0; i<star_length; i++)
         printf("*");
