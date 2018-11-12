@@ -3,11 +3,11 @@
 void election(){;}
 
 void establish(int port) {
-    send_message(PORT, port);
+    send_message(PORT, port,0,0);
 }
 
 void main_loop(state_t *state) {
-    printf("Node %d in  main_loop()\n", id);
+    //printf("Node %d in  main_loop()\n", id);
     int done = 0;
     int bytes_read = 0;
     char buffer[50];
@@ -30,7 +30,7 @@ void main_loop(state_t *state) {
             perror(buffer);
         }
         else {
-            printf("Node %d received a message\n", id);
+            //printf("Node %d received a message\n", id);
             bytes_read = recv(client_socket, buffer, 49, 0);
             if(bytes_read < 0) {
                 sprintf(buffer, "Node %d: Err on recv()\n", id);
@@ -39,43 +39,55 @@ void main_loop(state_t *state) {
             else
                 done = process_message(buffer);
         } //else
+        close(client_socket);
     } // while
     close(server_port);
 }// main_loop()
 
 int process_message(char* msg) {
-    printf("Node %d revieved message '%s'\n", id, msg);
     int incoming_id = -1;
     int message_parity = -1;
 
     char *message_type = strtok(msg, ";");
-    char *next_s = strtok(msg, ";");
+    char *next_s = strtok(NULL, ";");
     int incoming_port = strtol(next_s, NULL, 10);
-    next_s = strtok(msg, ";");
+    printf("Node %d revieved message '%s' from port %d\n", id, msg, incoming_port);
+    next_s = strtok(NULL, ";");
     if(next_s != NULL)
         incoming_id = strtol(next_s, NULL, 10);
-        next_s = strtok(msg, ";");
+        next_s = strtok(NULL, ";");
         if(next_s != NULL)
             message_parity = strtol(next_s, NULL, 10);
 
     switch(message_type[0]) {
         case 'P':
-            if(!port_L && !port_R)
-                port_R = incoming_port;
+            printf("Node %d recieved a PORT message\n", id);
             if(!port_R)
+                port_R = incoming_port;
+            else
                 port_L = incoming_port;
+            print_status();
+
             if(port_L && port_R) {
-                send_message(ELECTION, port_L);
-                send_message(ELECTION, port_R);
+                send_message(ELECTION, port_L,franklin_id,0);
+                send_message(ELECTION, port_R,franklin_id,0);
             }
             break;
         case 'D':
+            printf("Node %d recieved a die message\n", id);
+            if (incoming_port != port_R)
+                printf("Node %d is the last so not passing along message\n");
+            else {
+                printf("Node %d passing along Die message\n");
+                send_message(DIE, port_R, incoming_port, -1);
+            }
+            return 1;
             break;
     }
     return 0;
 }
 
-void send_message(message_t type, int receiver) {
+void send_message(message_t type, int receiver, int payload, int parity) {
     int out_socket = socket(AF_INET, SOCK_STREAM, 0);
     struct sockaddr_in out_addr;
     memset(&out_addr, 0, sizeof(out_addr));
@@ -101,11 +113,11 @@ void send_message(message_t type, int receiver) {
             break;
         case ELECTION:
             strcat(msg, "E;");
-            sprintf(val, "%d;%d;%d", server_port,franklin_id, election_round %2 );
+            sprintf(val, "%d;%d;%d", server_port, payload, parity);
             break;
         case DIE:
             strcat(msg, "D;");
-            sprintf(val, "%d", server_port);
+            sprintf(val, "%d;%d", server_port, payload);
             break;
         default:
             printf("Node %d: Reached end of send_message() switch", id);
@@ -116,7 +128,8 @@ void send_message(message_t type, int receiver) {
         printf("Node %d sending '%s' to port %d\n", id, msg, receiver);
         bytes_sent = send(out_socket, msg, strlen(msg), 0);
     }
-    printf("Node %d sent %d bytes to port %d\n", id, bytes_sent, receiver);
+    //printf("Node %d sent %d bytes to port %d\n", id, bytes_sent, receiver);
+    close(out_socket);
 }
 
 int start_server(int last_port, state_t *state) {
