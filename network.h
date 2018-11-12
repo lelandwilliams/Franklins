@@ -17,6 +17,7 @@ int server_socket;
 char* server_octets;
 int parity;
 int f_ids[4] = {0,0,0,0};
+int election_round = 0;
 
 struct sockaddr_in addr;
 
