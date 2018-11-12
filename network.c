@@ -60,7 +60,10 @@ int process_message(char* msg) {
                 port_R = incoming_port;
             if(!port_R)
                 port_L = incoming_port;
-            election();
+            if(port_L && port_R) {
+                send_message(ELECTION, port_L);
+                send_message(ELECTION, port_R);
+            }
             break;
         case 'D':
             break;
@@ -93,7 +96,7 @@ void send_message(message_t type, int receiver) {
             break;
         case ELECTION:
             strcat(msg, "E;");
-            sprintf(val, "%d;%d", franklin_id, server_port);
+            sprintf(val, "%d;%d;%d", server_port,franklin_id, election_round %2 );
             break;
         case DIE:
             strcat(msg, "D;");
