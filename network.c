@@ -46,13 +46,17 @@ void main_loop(state_t *state) {
 int process_message(char* msg) {
     printf("Node %d revieved message '%s'\n", id, msg);
     int incoming_id = -1;
+    int message_parity = -1;
 
     char *message_type = strtok(msg, ";");
-    char *port_s = strtok(msg, ";");
-    int incoming_port = strtol(port_s, NULL, 10);
-    char *id_s = strtok(msg, ";");
-    if(id_s != NULL)
-        incoming_id = strtol(id_s, NULL, 10);
+    char *next_s = strtok(msg, ";");
+    int incoming_port = strtol(next_s, NULL, 10);
+    next_s = strtok(msg, ";");
+    if(next_s != NULL)
+        incoming_id = strtol(next_s, NULL, 10);
+        next_s = strtok(msg, ";");
+        if(next_s != NULL)
+            message_parity = strtol(next_s, NULL, 10);
 
     switch(message_type[0]) {
         case 'P':
@@ -68,6 +72,7 @@ int process_message(char* msg) {
         case 'D':
             break;
     }
+    return 0;
 }
 
 void send_message(message_t type, int receiver) {
