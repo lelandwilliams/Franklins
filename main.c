@@ -143,6 +143,12 @@ int main(int argc, char** argv) {
         establish(port_R);
 
     main_loop(&state);
+    if(status == LEADER)
+        printf("Node %d: *** I AM THE LEADER ***\n", id);
+    if(status == PASSIVE)
+        printf("Node %d: *** I am not leader ***\n", id);
+    if(status == ACTIVE)
+        printf("Node %d: *** ERR: I am still in the election ***\n", id);
     return 0;
 }
 
