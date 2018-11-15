@@ -51,7 +51,7 @@ int process_message(char* msg) {
     char *message_type = strtok(msg, ";");
     char *next_s = strtok(NULL, ";");
     int incoming_port = strtol(next_s, NULL, 10);
-    printf("Node %d revieved message '%s' from port %d\n", id, msg, incoming_port);
+    //printf("Node %d revieved message '%s' from port %d\n", id, msg, incoming_port);
     next_s = strtok(NULL, ";");
     if(next_s != NULL)
         incoming_id = strtol(next_s, NULL, 10);
@@ -61,7 +61,7 @@ int process_message(char* msg) {
 
     switch(message_type[0]) {
         case 'P':
-            printf("Node %d recieved a PORT message\n", id);
+            //printf("Node %d recieved a PORT message\n", id);
             if(!port_R)
                 port_R = incoming_port;
             else
@@ -73,13 +73,61 @@ int process_message(char* msg) {
                 send_message(ELECTION, port_R,franklin_id,0);
             }
             break;
+        case 'E':
+            //printf("Node %d recieved an election message\n", id);
+            if(incoming_id == franklin_id) {
+                printf("Node: %d recieved it's own id so is now leader\n", id);
+                status = LEADER;
+                send_message(DIE, port_R, server_port, server_port);
+            }
+            if(status == PASSIVE)  {
+                if(incoming_port == port_L)
+                    send_message(ELECTION, port_R, incoming_id, message_parity);
+                else
+                    send_message(ELECTION, port_R, incoming_id, message_parity);
+            }
+            if(status == ACTIVE) {
+                int idx = 2 * message_parity;
+                if(incoming_port == port_R) {
+                    send_message(ELECTION, port_R,franklin_id,election_round %2);
+                    idx++;
+                }
+                else
+                    send_message(ELECTION, port_L,franklin_id,election_round %2);
+
+                f_ids[idx] = incoming_id;
+                idx = 2 * message_parity;
+                if(f_ids[idx] && f_ids[idx+1]) { // have ids from both sides
+                    if(franklin_id > f_ids[idx] && franklin_id > f_ids[idx+1]){
+                        printf("Node: %d remains in the election\n", id);
+                        f_ids[idx] = 0;
+                        f_ids[idx+1] = 0;
+                        send_message(ELECTION, port_L,franklin_id,election_round %2);
+                        send_message(ELECTION, port_R,franklin_id,election_round %2);
+                        election_round++;
+                    } //if
+                    else
+                    {
+                        printf("Node: %d quits the election\n, id");
+                        status = PASSIVE;
+                        // check to see if any next round messages have come
+                        // in and if so, pass them along.
+                        idx = 2 * ((election_round + 1) % 2);
+                        if(f_ids[idx])
+                            send_message(ELECTION, port_R, f_ids[idx], idx /2);
+                        if(f_ids[idx+1])
+                            send_message(ELECTION, port_L, f_ids[idx+1], idx /2);
+                    }//else
+                }//if
+            }// if (status == ACTIVE)
+            break;
         case 'D':
-            printf("Node %d recieved a die message\n", id);
-            if (incoming_port != port_R)
-                printf("Node %d is the last so not passing along message\n");
+            //printf("Node %d recieved a DIE message\n", id);
+            if (incoming_id == port_R)
+                printf("Node %d is the last so not passing along DIE message\n",id);
             else {
-                printf("Node %d passing along Die message\n");
-                send_message(DIE, port_R, incoming_port, -1);
+                printf("Node %d passing along Die message\n",id);
+                send_message(DIE, port_R, incoming_id, -1);
             }
             return 1;
             break;
@@ -125,7 +173,7 @@ void send_message(message_t type, int receiver, int payload, int parity) {
     strcat(msg, val);
     int bytes_sent = 0;
     while(bytes_sent == 0) {
-        printf("Node %d sending '%s' to port %d\n", id, msg, receiver);
+        //printf("Node %d sending '%s' to port %d\n", id, msg, receiver);
         bytes_sent = send(out_socket, msg, strlen(msg), 0);
     }
     //printf("Node %d sent %d bytes to port %d\n", id, bytes_sent, receiver);
