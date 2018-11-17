@@ -178,7 +178,7 @@ void send_message(message_t type, int receiver, int payload, int parity) {
     close(out_socket);
 }
 
-int start_server(int last_port, state_t *state) {
+int start_server(int last_port) {
     /* 
      * */
     server_port = last_port;
