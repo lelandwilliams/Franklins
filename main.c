@@ -71,14 +71,12 @@ int process_args(int argc, char** argv) {
 }
 
 int main(int argc, char** argv) {
-    // since this program will probably run on the same
+    // since program instances may run on the same
     // machine, the random number generators will likely
-    // interfere which each other because the startup time 
-    // is so fast
-    // that using time(0) can return the same result 
-    // so using time as a seed causes the rng to 
-    // produce the same value, so instead we draw
-    // from /dev/urandom for a seed
+    // interfere which each other because using time(0) 
+    // as a seed can return the same result if startup times
+    // are instantaneous , so instead we draw from 
+    // /dev/urandom for a seed
 
     //read from /dev/urandom
     unsigned char rbuffer[8];
