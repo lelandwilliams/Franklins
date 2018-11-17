@@ -140,7 +140,7 @@ int main(int argc, char** argv) {
     if(id == num_nodes)
         establish(port_R);
 
-    main_loop(&state);
+    main_loop();
     if(status == LEADER)
         printf("Node %d: *** I AM THE LEADER ***\n", id);
     if(status == PASSIVE)
