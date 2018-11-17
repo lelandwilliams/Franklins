@@ -103,8 +103,9 @@ int main(int argc, char** argv) {
     start_server(55336);
     if(id == 1)
         first_port = server_port;
-    print_status();
+    //print_status();
 
+    // spawn a new node with the proper args
     if(num_nodes == id) 
         port_R = first_port;
     else {
@@ -133,11 +134,13 @@ int main(int argc, char** argv) {
         }
     }
 
+    // communicate network info with neighbors in the ring
     if(id > 1)
         establish(port_L);
     if(id == num_nodes)
         establish(port_R);
 
+    // start the network, and report the election results
     main_loop();
     if(status == LEADER)
         printf("Node %d: *** I AM THE LEADER ***\n", id);
