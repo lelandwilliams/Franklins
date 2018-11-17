@@ -26,5 +26,5 @@ void establish(int);
 int process_message(char*);
 void send_message(message_t, int,int,int);
 int start_server(int, state_t*);
-void main_loop(state_t*);
+void main_loop();
 #endif

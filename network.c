@@ -6,7 +6,7 @@ void establish(int port) {
     send_message(PORT, port,0,0);
 }
 
-void main_loop(state_t *state) {
+void main_loop() {
     //printf("Node %d in  main_loop()\n", id);
     int done = 0;
     int bytes_read = 0;
