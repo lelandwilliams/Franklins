@@ -71,8 +71,6 @@ int process_args(int argc, char** argv) {
 }
 
 int main(int argc, char** argv) {
-    state_t state = new_state;
-
     // since this program will probably run on the same
     // machine, the random number generators will likely
     // interfere which each other because the startup time 
@@ -104,7 +102,7 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    start_server(55336, &state);
+    start_server(55336);
     if(id == 1)
         first_port = server_port;
     print_status();
