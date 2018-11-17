@@ -51,7 +51,7 @@ int process_message(char* msg) {
     char *message_type = strtok(msg, ";");
     char *next_s = strtok(NULL, ";");
     int incoming_port = strtol(next_s, NULL, 10);
-    //printf("Node %d revieved message '%s' from port %d\n", id, msg, incoming_port);
+    printf("Node %d revieved message '%s' from port %d\n", id, msg, incoming_port);
     next_s = strtok(NULL, ";");
     if(next_s != NULL)
         incoming_id = strtol(next_s, NULL, 10);
@@ -108,7 +108,7 @@ int process_message(char* msg) {
                     } //if
                     else
                     {
-                        printf("Node: %d quits the election\n, id");
+                        printf("Node: %d quits the election\n", id);
                         status = PASSIVE;
                         // check to see if any next round messages have come
                         // in and if so, pass them along.
