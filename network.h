@@ -21,7 +21,6 @@ int election_round = 0;
 
 struct sockaddr_in addr;
 
-void election();
 void establish(int);
 int process_message(char*);
 void send_message(message_t, int,int,int);

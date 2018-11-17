@@ -1,7 +1,5 @@
 #include "network.h"
 
-void election(){;}
-
 void establish(int port) {
     send_message(PORT, port,0,0);
 }
