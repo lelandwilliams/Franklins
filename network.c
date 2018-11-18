@@ -44,18 +44,18 @@ void main_loop() {
 
 int process_message(char* msg) {
     int incoming_id = -1;
-    int message_parity = -1;
+    int parity = -1;
 
     char *message_type = strtok(msg, ";");
     char *next_s = strtok(NULL, ";");
     int incoming_port = strtol(next_s, NULL, 10);
-    printf("Node %d revieved message '%s' from port %d\n", id, msg, incoming_port);
+    //printf("Node %d recieved message '%s' from port %d\n", id, msg, incoming_port);
     next_s = strtok(NULL, ";");
     if(next_s != NULL)
         incoming_id = strtol(next_s, NULL, 10);
         next_s = strtok(NULL, ";");
         if(next_s != NULL)
-            message_parity = strtol(next_s, NULL, 10);
+            parity = strtol(next_s, NULL, 10);
 
     switch(message_type[0]) {
         case 'P':
@@ -64,49 +64,65 @@ int process_message(char* msg) {
                 port_R = incoming_port;
             else
                 port_L = incoming_port;
-            print_status();
+            usleep(250000);
 
             if(port_L && port_R) {
-                send_message(ELECTION, port_L,franklin_id,0);
-                send_message(ELECTION, port_R,franklin_id,0);
+                print_status();
+                printf("Node %d: has connected to its ring and begins election\n", id);
+                send_election(port_L, 0);
+                usleep(250000);
+                send_election(port_R, 0);
             }
             break;
         case 'E':
             //printf("Node %d recieved an election message\n", id);
             if(incoming_id == franklin_id) {
-                printf("Node: %d recieved it's own id so is now leader\n", id);
-                status = LEADER;
-                send_message(DIE, port_R, server_port, server_port);
-            }
+                leader_count++;
+                if(leader_count == 2) {
+                    status = LEADER;
+                    printf("Node: %d received it's own id so is now leader\n", id);
+                    usleep(100000);
+                    send_message(DIE, port_R, server_port, server_port);
+                }// if
+                break;
+            }// if
             if(status == PASSIVE)  {
+                printf("Node %d received an election message, but is passive so passing along\n", id);
+                usleep(100000);
                 if(incoming_port == port_L)
-                    send_message(ELECTION, port_R, incoming_id, message_parity);
+                    send_message(ELECTION, port_R, incoming_id, parity);
                 else
-                    send_message(ELECTION, port_R, incoming_id, message_parity);
+                    send_message(ELECTION, port_R, incoming_id, parity);
             }
             if(status == ACTIVE) {
-                int idx = 2 * message_parity;
+                int idx = 2 * parity;
                 if(incoming_port == port_R) {
-                    send_message(ELECTION, port_R,franklin_id,election_round %2);
+                    send_election(port_R, parity);
                     idx++;
                 }
                 else
-                    send_message(ELECTION, port_L,franklin_id,election_round %2);
+                    send_election(port_L, parity);
 
                 f_ids[idx] = incoming_id;
-                idx = 2 * message_parity;
+
+                idx = 2 * parity; // set index to first node of this parity
                 if(f_ids[idx] && f_ids[idx+1]) { // have ids from both sides
+                    usleep(250000);
                     if(franklin_id > f_ids[idx] && franklin_id > f_ids[idx+1]){
-                        printf("Node: %d remains in the election\n", id);
+                        printf("Node: %d compares franklin ids and remains in the election\n\n", id);
                         f_ids[idx] = 0;
                         f_ids[idx+1] = 0;
-                        send_message(ELECTION, port_L,franklin_id,election_round %2);
-                        send_message(ELECTION, port_R,franklin_id,election_round %2);
+                        f_sent[idx] = 0;
+                        f_sent[idx+1] = 0;
+                        usleep(100000);
                         election_round++;
+                        send_election(port_L, election_round % 2);
+                        send_election(port_R, election_round % 2);
+                        usleep(100000);
                     } //if
                     else
                     {
-                        printf("Node: %d quits the election\n", id);
+                        printf("Node: %d compares franklin ids and leaves the election\n", id);
                         status = PASSIVE;
                         // check to see if any next round messages have come
                         // in and if so, pass them along.
@@ -115,6 +131,7 @@ int process_message(char* msg) {
                             send_message(ELECTION, port_R, f_ids[idx], idx /2);
                         if(f_ids[idx+1])
                             send_message(ELECTION, port_L, f_ids[idx+1], idx /2);
+                        usleep(200000);
                     }//else
                 }//if
             }// if (status == ACTIVE)
@@ -133,19 +150,47 @@ int process_message(char* msg) {
     return 0;
 }
 
-void send_message(message_t type, int receiver, int payload, int parity) {
+void send_election(int dest, int parity) {
+    int idx = 2 * parity;
+
+    int receiving_node = id; // for printf purposes
+    if(dest == port_R){
+        idx++;
+        receiving_node = (receiving_node +1) % num_nodes;
+        if(receiving_node == 0)
+            receiving_node = 1;
+    }// if
+    else { 
+        receiving_node = (receiving_node -1);
+        if(receiving_node == 0)
+            receiving_node = num_nodes;
+    }// else
+        
+
+    if(f_sent[idx])
+        // supress sending repeat election messages
+        printf("Node %d has already sent it's franklin value to Node %d this round so not sending again\n", id, receiving_node);
+    else {
+        f_sent[idx] = 1; 
+        printf("Node %d sending its election id of %d to node %d\n", id, franklin_id,receiving_node);
+        send_message(ELECTION, dest, franklin_id, parity);
+    }//else
+}// send_election();
+
+
+void send_message(message_t type, int dest, int payload, int parity) {
     int out_socket = socket(AF_INET, SOCK_STREAM, 0);
     struct sockaddr_in out_addr;
     memset(&out_addr, 0, sizeof(out_addr));
     out_addr.sin_family = PF_INET;
     out_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    out_addr.sin_port = htons(receiver);
+    out_addr.sin_port = htons(dest);
     int result = connect(out_socket, 
             (struct sockaddr *) &out_addr, 
             sizeof(out_addr));
     if(result == -1) {
         char e[50];
-        sprintf(e, "Node %d: Connection Error to port %d", id, receiver);
+        sprintf(e, "Node %d: Connection Error to port %d", id, dest);
         perror(e);
     }
 
@@ -170,11 +215,13 @@ void send_message(message_t type, int receiver, int payload, int parity) {
     }
     strcat(msg, val);
     int bytes_sent = 0;
+    
     while(bytes_sent == 0) {
         //printf("Node %d sending '%s' to port %d\n", id, msg, receiver);
         bytes_sent = send(out_socket, msg, strlen(msg), 0);
     }
     //printf("Node %d sent %d bytes to port %d\n", id, bytes_sent, receiver);
+
     close(out_socket);
 }
 
