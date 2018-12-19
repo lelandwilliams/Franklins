@@ -134,6 +134,7 @@ int main(int argc, char** argv) {
         }
     }
 
+    status = ACTIVE;
     // communicate network info with neighbors in the ring
     if(id > 1)
         establish(port_L);
@@ -141,10 +142,11 @@ int main(int argc, char** argv) {
     if(id == num_nodes) {
         establish(port_R);
         print_status();
-        usleep(250000);
-        send_election(port_L, 0);
-        send_election(port_R, 0);
+        //send_election(port_L, 0);
+        //send_election(port_R, 0);
     }
+    enque_message(LEFT,franklin_id, 0);
+    enque_message(RIGHT,franklin_id, 0);
 
     // start the network, and report the election results
     main_loop();
@@ -154,6 +156,6 @@ int main(int argc, char** argv) {
         printf("Node %d: *** I am not leader ***\n", id);
     if(status == ACTIVE)
         printf("Node %d: *** ERR: I am still in the election ***\n", id);
-    //return 0;
+    sleep(1);
 }
 

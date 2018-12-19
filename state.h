@@ -1,7 +1,7 @@
 #ifndef STATE_H
 #define STATE_H
 
-typedef enum {ACTIVE, PASSIVE, LEADER} nodestatus;
+typedef enum {LISTENING, ACTIVE, PASSIVE, LEADER} nodestatus;
 int franklin_id;
 int id = 1;
 int first_port = -1; // remembers port of first node
