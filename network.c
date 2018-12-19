@@ -160,7 +160,7 @@ void process_message(char* msg) {
                 print_status();
                 printf("Node %d: has connected to its ring and begins election\n", id);
                 //send_election(port_L, 0);
-                usleep(250000);
+                //usleep(250000);
                 //send_election(port_R, 0);
             }
             break;
