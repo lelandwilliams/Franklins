@@ -1,0 +1,86 @@
+Script started on Tue 18 Dec 2018 09:51:10 PM CST
+]0;STCLOUDSTATE\fo6132my@ahscentos:~/Franklins[STCLOUDSTATE\fo6132my@ahscentos Franklins]$ make
+gcc -std=gnu99 -Wall -c network.c
+gcc -std=gnu99 -Wall -c main.c 
+gcc -std=gnu99 -Wall main.o -o franklin
+]0;STCLOUDSTATE\fo6132my@ahscentos:~/Franklins[STCLOUDSTATE\fo6132my@ahscentos Franklins]$ ./franklin -n 4
+Node 1 listening
+Node 2 listening
+Node 1: Connection Error to port 0: Connection refused
+Node 3 listening
+
+******************************
+Node Number: 2 of 4
+Franklin ID: 592323
+Node 1 Port: 55337
+This Node's Port: 55338
+This Node's Address: 0.0.0.0
+Previous Node's Port: 55337
+Next Node's Port: 55339
+******************************
+
+Node 2: has connected to its ring and begins election
+Node 4 listening
+
+******************************
+Node Number: 3 of 4
+Franklin ID: 882321
+Node 1 Port: 55337
+This Node's Port: 55339
+This Node's Address: 0.0.0.0
+Previous Node's Port: 55338
+Next Node's Port: 55340
+******************************
+
+Node 3: has connected to its ring and begins election
+
+******************************
+Node Number: 4 of 4
+Franklin ID: 733336
+Node 1 Port: 55337
+This Node's Port: 55340
+This Node's Address: 0.0.0.0
+Previous Node's Port: 55339
+Next Node's Port: 55337
+******************************
+
+Node 1: Connection Error to port 0: Connection refused
+
+******************************
+Node Number: 1 of 4
+Franklin ID: 249952
+Node 1 Port: 55337
+This Node's Port: 55337
+This Node's Address: 0.0.0.0
+Previous Node's Port: 55340
+Next Node's Port: 55338
+******************************
+
+Node 1: has connected to its ring and begins election
+Node 3 has franklin value 882321 which it compares against 592323 and 733336
+Node: 3 compares franklin ids and remains in the election
+
+Node 4 has franklin value 733336 which it compares against 882321 and 249952
+Node: 4 compares franklin ids and leaves the election
+Node 2 has franklin value 592323 which it compares against 249952 and 882321
+Node: 2 compares franklin ids and leaves the election
+Node 1 has franklin value 249952 which it compares against 733336 and 592323
+Node: 1 compares franklin ids and leaves the election
+Node 2 received an election message, but is passive so passing along
+Node 4 received an election message, but is passive so passing along
+Node 1 received an election message, but is passive so passing along
+Node 4 received an election message, but is passive so passing along
+Node 1 received an election message, but is passive so passing along
+Node 2 received an election message, but is passive so passing along
+Node: 3 received it's own id so is now leader
+Node 4 passing along Die message
+Node 1 passing along Die message
+Node 2 passing along Die message
+Node 3 passing along Die message
+Node 4: *** I am not leader ***
+Node 1: *** I am not leader ***
+Node 2: *** I am not leader ***
+Node 3: *** I AM THE LEADER ***
+]0;STCLOUDSTATE\fo6132my@ahscentos:~/Franklins[STCLOUDSTATE\fo6132my@ahscentos Franklins]$ exit
+
+Script done on Tue 18 Dec 2018 09:51:42 PM CST
