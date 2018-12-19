@@ -1,0 +1,3 @@
+to build: use 'make'
+to run: type 'franklin -n #' where # is the desired number of nodes
+
