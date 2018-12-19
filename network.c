@@ -154,7 +154,7 @@ void process_message(char* msg) {
                 port_R = incoming_port;
             else
                 port_L = incoming_port;
-            usleep(250000);
+            //usleep(250000);
 
             if(port_L && port_R) {
                 print_status();
