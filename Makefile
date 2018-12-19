@@ -1,4 +1,4 @@
-CC=gcc -std=c99
+CC=gcc -std=gnu99
 CFLAGS=-I. -Wall
 
 all: franklin
