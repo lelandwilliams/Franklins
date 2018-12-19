@@ -106,7 +106,7 @@ void mind_business() {
                 id, 
                 franklin_id,  
                 f_ids[election_round][0],
-                f_ids[election_round][0]);
+                f_ids[election_round][1]);
         if(franklin_id > f_ids[election_round][0] && 
                 franklin_id > f_ids[election_round][1]) {
             // This node won the election
