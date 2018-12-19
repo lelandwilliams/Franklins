@@ -177,7 +177,7 @@ void process_message(char* msg) {
                 break;
             }// if
             if(status == PASSIVE)  {
-                //printf("Node %d received an election message, but is passive so passing along\n", id);
+                printf("Node %d received an election message, but is passive so passing along\n", id);
                 if(incoming_port == port_L)
                     enque_message(RIGHT, incoming_id, parity);
                 else
@@ -189,9 +189,9 @@ void process_message(char* msg) {
                 if(incoming_port == port_R)
                     slot = 1;
                 f_ids[parity][slot] = incoming_id;
-                printf("Node %d has f_ids (%d, %d)\n", id, 
+                /*printf("Node %d has f_ids (%d, %d)\n", id, 
                         f_ids[parity][0],
-                        f_ids[parity][1]);
+                        f_ids[parity][1]);*/
             }// if (status == ACTIVE)
             break;
         case 'D':
