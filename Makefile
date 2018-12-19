@@ -13,6 +13,6 @@ franklin: network.o main.o
 	$(CC) main.o -o franklin
 
 clean:
-	rm *.o franklin
+	rm -v *.o franklin
 
 
