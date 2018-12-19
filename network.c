@@ -38,7 +38,7 @@ void main_loop() {
         //printf("Node %d checking for incoming\n", id);
         int client_socket = accept(server_socket, 
                 (struct sockaddr *) &client_addr,
-                &client_addr_size);
+                (socklen_t *) &client_addr_size);
         if(client_socket == -1){
             if(errno != EAGAIN || errno != EWOULDBLOCK) {
                 sprintf(buffer, "Node %d: Err accepting connection\n", id);
@@ -141,11 +141,12 @@ void process_message(char* msg) {
     int incoming_port = strtol(next_s, NULL, 10);
     //printf("Node %d recieved message '%s' from port %d\n", id, msg, incoming_port);
     next_s = strtok(NULL, ";");
-    if(next_s != NULL)
+    if(next_s != NULL) {
         incoming_id = strtol(next_s, NULL, 10);
         next_s = strtok(NULL, ";");
         if(next_s != NULL)
             parity = strtol(next_s, NULL, 10);
+    }
 
     switch(message_type[0]) {
         case 'P':
